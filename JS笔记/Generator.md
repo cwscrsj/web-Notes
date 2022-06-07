@@ -90,3 +90,130 @@ let hw = helloWorldGenerator();
   ```
 
   
+
+## 4. 异步应用
+
++ 使用generator函数解决**代码冗余**的问题
+
+### 4.1. 协程
+
+#### a. 基本概念
+
+意思：多个线程互相协作，完成异步任务。
+
+> 运行流程：
+>
+> - 第一步，协程`A`开始执行。
+> - 第二步，协程`A`执行到一半，进入暂停，执行权转移到协程`B`。
+> - 第三步，（一段时间后）协程`B`交还执行权。
+> - 第四步，协程`A`恢复执行。
+
+
+
+```javascript
+function* asyncJob() {
+  // ...其他代码
+  var f = yield readFile(fileA);
+  // ...其他代码
+}
+
+//yield命令表示执行到此处，执行权将交给其他协程。
+```
+
+#### b. 函数实现
+
++ 整个 Generator 函数就是==一个封装的异步任务==（异步任务的容器）。
+
++ 异步操作需要暂停的地方，都用`yield`语句注明
+
+```javascript
+            let y = yield x + 2;
+            return y;
+        }
+
+        let g = gen(1);
+        console.log(g.next());// { value: 3, done: false }
+        console.log(g.next()); // { value: undefined, done: true }
+
+
+//，next方法的作用是分阶段执行Generator函数。每次调用next方法，会返回一个对象，表示当前阶段的信息（value属性和done属性）。value属性是yield语句后面表达式的值，表示当前阶段的值；done属性是一个布尔值，表示 Generator 函数是否执行完毕，即是否还有下一个阶段。
+```
+
+#### c. 数据交换和错误处理
+
++ `next`返回值的 value 属性，是 Generator 函数向外输出数据；
++ `next`方法还可以接受参数，向 Generator 函数体内输入数据。
+
+```javascript
+function* gen(x){
+  var y = yield x + 2;
+  return y;
+}
+
+var g = gen(1);
+g.next() // { value: 3, done: false }
+g.next(2) // { value: 2, done: true }
+
+//上面代码中，第一个next方法的value属性，返回表达式x + 2的值3。第二个next方法带有参数2，这个参数可以传入 Generator 函数，作为上个阶段异步任务的返回结果，被函数体内的变量y接收。因此，这一步的value属性，返回的就是2（变量y的值）。
+```
+
++ 捕获函数体外抛出的错误（暂时不太懂）
+
+  ```javascript
+  function* gen(x){
+    try {
+      var y = yield x + 2;
+    } catch (e){
+      console.log(e);
+    }
+    return y;
+  }
+  
+  var g = gen(1);
+  g.next();
+  g.throw('出错了');
+  // 出错了
+  ```
+
+  
+
+#### d. 异步任务的封装
+
+```javascript
+var fetch = require('node-fetch');
+
+function* gen(){
+  var url = 'https://api.github.com/users/github';
+  var result = yield fetch(url);
+  console.log(result.bio);
+}
+
+var g = gen();
+var result = g.next();
+
+result.value.then(function(data){
+  return data.json();
+}).then(function(data){
+  g.next(data);
+});
+```
+
++ 上面代码首先执行 Generator 函数，获取遍历器对象，然后使用`next`方法（第二行），==执行异步任务的第一阶段==。由于`Fetch`模块返回的是一个 Promise 对象，因此要用`then`方法调用下一个`next`方法。
+
+### 4.2 Thunk 函数
+
+[Thunk函数 文档](https://es6.ruanyifeng.com/#docs/generator-async#Generator-%E5%87%BD%E6%95%B0)
+
+#### a. 含义
+
+将参数放到一个==临时函数==之中，再将这个临时函数传入函数体。这个临时函数就叫做 Thunk 函数。
+
+#### b. 作用
+
+Thunk 函数现在可以用于 Generator 函数的==自动==流程管理。
+
+### 4.3 co模块
+
+[co模块 文档](https://es6.ruanyifeng.com/#docs/generator-async#Generator-%E5%87%BD%E6%95%B0)
+
+####  
