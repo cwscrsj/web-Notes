@@ -200,6 +200,21 @@ result.value.then(function(data){
 
 + 上面代码首先执行 Generator 函数，获取遍历器对象，然后使用`next`方法（第二行），==执行异步任务的第一阶段==。由于`Fetch`模块返回的是一个 Promise 对象，因此要用`then`方法调用下一个`next`方法。
 
+#### e. next的传值
+
+```javascript
+        function* generator() {
+            const a = yield 1
+            console.log(`我是a: ${a}`)
+        }
+
+        const gen = generator()
+        console.log(gen.next())  // { value: 1, done: false }
+        console.log(gen.next(2)) // 我是a: 2 { value: undefined, done: true }
+```
+
+![image.png](https://raw.githubusercontent.com/cwscrsj/typoraImges/main/img/202206081629204.webp)
+
 ### 4.2 Thunk 函数
 
 [Thunk函数 文档](https://es6.ruanyifeng.com/#docs/generator-async#Generator-%E5%87%BD%E6%95%B0)
