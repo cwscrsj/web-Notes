@@ -62,18 +62,20 @@ ES6 的模块自动采用严格模式
 
 + 可以用`as`重命名`export`输出的变量
 
-```javascript
-function v1() { ... }
-function v2() { ... }
+  ```javascript
+  function v1() { ... }
+  function v2() { ... }
+  
+  export {
+    v1 as streamV1,
+    v2 as streamV2,
+    v2 as streamLatestVersion
+  };
+                 
+  //上面代码使用as关键字，重命名了函数v1和v2的对外接口。重命名后，v2可以用不同的名字输出两次。
+  ```
 
-export {
-  v1 as streamV1,
-  v2 as streamV2,
-  v2 as streamLatestVersion
-};
-               
-//上面代码使用as关键字，重命名了函数v1和v2的对外接口。重命名后，v2可以用不同的名字输出两次。
-```
+  
 
 + `export`命令规定的是对外的接口
 
@@ -100,4 +102,47 @@ export {
   export {f};
   ```
 
+
+## 四、import 命令
+
+### 1. 概述
+
+使用`export`命令定义了模块的对外接口以后，其他 JS 文件就可以==通过import命令==加载这个模块。
+
+### 2. 特点
+
++ `import`命令输入的变量都是**只读**的，但输入**对象可改写属性**
+
+  **（ 建议凡是输入的变量，都当作完全只读，不要轻易改变它的属性。）**
+
++ `import`命令具有**提升效果**，会提升到整个模块的头部，首先执行。
+
++ `import`是静态执行，所以**不能使用表达式和变量**
+
++ import语句**只执行一次**
+
+### 3. 使用
+
++ 引用
+
+  ```javascript
+  // main.js
+  import { firstName, lastName, year } from './profile.js';
   
+  function setName(element) {
+    element.textContent = firstName + ' ' + lastName;
+  }
+  ```
+
++ 使用==as关键字==对输入变量重命名
+
+  ```javascript
+  import { lastName as surname } from './profile.js';
+  ```
+
+## 五、整体加载
+
++ 用星号（`*`）指定一个对象，所有输出值都加载在这个对象上面。
+
+![image-20220618225451936](https://raw.githubusercontent.com/cwscrsj/typoraImges/main/img/202206182254037.png)
+
