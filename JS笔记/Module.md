@@ -2,7 +2,7 @@
 
 ## 一、 概述
 
-模块（module）体系可以将一个大程序拆分成互相依赖的小文件，再用简单的方法拼装起来。
++ 模块（module）体系可以将一个大程序拆分成互相依赖的小文件，再用简单的方法拼装起来。
 
 ```javascript
 // CommonJS模块
@@ -15,7 +15,7 @@ let exists = _fs.exists;
 let readfile = _fs.readfile;
 ```
 
-ES6 模块不是对象，而是通过`export`命令==显式指定输出的代码==，再==通过import命令输入==。
++ ES6 模块不是对象，而是通过`export`命令==显式指定输出的代码==，再==通过import命令输入==。
 
 ```javascript
 // ES6模块
@@ -102,6 +102,48 @@ ES6 的模块自动采用严格模式
   export {f};
   ```
 
+### 3. export default命令
+
+不用知道所要加载的变量名或函数名就加载模块
+
++ 使用`export default`时，对应的`import`语句==不需要使用大括号==；
++ `export default`命令==只能使用一次==
++ **<font color="red">`export default`命令的本质是将后面的值，赋给`default`变量</font>**
+
+```javascript
+// export-default.js
+export default function foo() {
+  console.log('foo');
+}
+
+// 或者写成
+
+function foo() {
+  console.log('foo');
+}
+
+export default foo;
+```
+
++ 可以==任意取名字==
+
+  ```javascript
+  // modules.js
+  function add(x, y) {
+    return x * y;
+  }
+  export {add as default};
+  // 等同于
+  // export default add;
+  
+  // app.js
+  import { default as foo } from 'modules';
+  // 等同于
+  // import foo from 'modules';
+  ```
+
+  
+
 
 ## 四、import 命令
 
@@ -146,3 +188,80 @@ ES6 的模块自动采用严格模式
 
 ![image-20220618225451936](https://raw.githubusercontent.com/cwscrsj/typoraImges/main/img/202206182254037.png)
 
+## 六、其他内容
+
+[es6 阮一峰](https://es6.ruanyifeng.com/#docs/module#export-default-%E5%91%BD%E4%BB%A4)
+
+| 内容                   | 作用                                                         |
+| ---------------------- | ------------------------------------------------------------ |
+| export和import复合写法 | 模块的接口改名和整体输出                                     |
+| 模块的继承             |                                                              |
+| **跨模块常量**         | 想设置跨模块的常量（即跨多个文件），或者说一个值要被多个模块共享 |
+
+## 七、适用场景
+
+### 1. 按需加载
+
+`import()`可以在需要的时候，再加载某个模块。
+
+```javascript
+button.addEventListener('click', event => {
+  import('./dialogBox.js')
+  .then(dialogBox => {
+    dialogBox.open();
+  })
+  .catch(error => {
+    /* Error handling */
+  })
+});
+```
+
+### 2. 条件加载
+
+根据不同情况加载不同模块
+
+```javascript
+if (condition) {
+  import('moduleA').then(...);
+} else {
+  import('moduleB').then(...);
+}
+```
+
+### 3. 动态的模块路径
+
+```javascript
+import(f())
+.then(...);
+```
+
+上面代码中，根据函数`f`的返回结果，加载不同的模块。
+
+## ❤ 注意点
+
++ 可以使用解构赋值获取输出接口
+
+  ```javascript
+  import('./myModule.js')
+  .then(({export1, export2}) => {
+    // ...·
+  });
+  ```
+
++ 可以使用`promise.all`加载多个模块
+
+  ```javascript
+  async function main() {
+    const myModule = await import('./myModule.js');
+    const {export1, export2} = await import('./myModule.js');
+    const [module1, module2, module3] =
+      await Promise.all([
+        import('./module1.js'),
+        import('./module2.js'),
+        import('./module3.js'),
+      ]);
+  }
+  main();
+  ```
+
+  
