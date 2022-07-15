@@ -148,11 +148,12 @@
 + 加载动画函数
 
   ```javascript
-  function loadAnimate(fatherbox, flag) {
+  function loadAnimate(fatherbox, flag, position = 'center') {
       const container = document.getElementById(fatherbox);
+      container.classList.add('spinner-container');
       if (flag) {
           let box = `
-           <div class="spinner">
+           <div class="spinner spinner-${position}">
               <div class="rect1"></div>
               <div class="rect2"></div>
               <div class="rect3"></div>
@@ -165,10 +166,12 @@
       else {
           let box = container.querySelector('.spinner');
           box.remove();
+          container.classList.remove('spinner-container');
       }
   }
+  
   ```
-
+  
   
 
 
